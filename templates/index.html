@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 data-typewriter="true">Добре дошли в AI Language Assistant!</h1>
+<p class="lead">Интелигентен езиков помощник с модерен дизайн и мощни функции за учене на езици.</p>
+
+<div class="features">
+    <!-- В секцията с feature cards -->
+    <div class="feature-card">
+        <h3>🔤 Интелигентен преводач</h3>
+        <p>Превеждайте текст между 20+ езика с Google Translate AI технология</p>
+        <a href="/translator" class="btn">🚀 Изпробвайте преводача</a>
+    </div>
+
+    <div class="feature-card">
+        <h3>📖 Дума на деня</h3>
+        <p>Разширете речника си с нова дума всеки ден, включително произношение, примери и синоними</p>
+        <a href="/word-of-day" class="btn btn-secondary">Научете днешната дума</a>
+    </div>
+
+    <div class="feature-card">
+        <h3>🎴 Интерактивни флаш карти</h3>
+        <p>Учете ефективно с персонализирани флаш карти, адаптирани към вашето ниво</p>
+        <a href="/flashcards" class="btn btn-success">Започнете учене</a>
+    </div>
+</div>
+
+<div class="stats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem; margin-top: 4rem; text-align: center;">
+    <div>
+        <div style="font-size: 2.5rem; font-weight: 800; background: var(--primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">500+</div>
+        <div style="color: var(--dark-text); font-weight: 600;">Думи в базата</div>
+    </div>
+    <div>
+        <div style="font-size: 2.5rem; font-weight: 800; background: var(--secondary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">6</div>
+        <div style="color: var(--dark-text); font-weight: 600;">Езика за превод</div>
+    </div>
+    <div>
+        <div style="font-size: 2.5rem; font-weight: 800; background: var(--success-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">3</div>
+        <div style="color: var(--dark-text); font-weight: 600;">Нива на трудност</div>
+    </div>
+</div>
+{% endblock %}

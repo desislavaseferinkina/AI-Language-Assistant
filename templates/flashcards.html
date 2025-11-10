@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Флаш карти за учене</h1>
+<div class="flashcards-container">
+    {% for card in flashcards %}
+    <div class="flashcard difficulty-{{ card.difficulty }}">
+        <div class="flashcard-inner">
+            <div class="flashcard-front">
+                <h3>{{ card.word }}</h3>
+                <small>Трудност:
+                    {% if card.difficulty == "beginner" %}🟢 Начинаещ
+                    {% elif card.difficulty == "intermediate" %}🟡 Напреднал
+                    {% else %}🔴 Експерт{% endif %}
+                </small>
+                <p class="hint">👆 Кликни за да видиш дефиницията</p>
+            </div>
+            <div class="flashcard-back">
+                <h3>{{ card.word }}</h3>
+                <p><strong>Дефиниция:</strong> {{ card.definition }}</p>
+                <p><strong>Пример:</strong> {{ card.example }}</p>
+                <p class="hint">👆 Кликни за да се върнеш</p>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<style>
+.flashcards-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.flashcard {
+    perspective: 1000px;
+    height: 200px;
+}
+
+.flashcard-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+    cursor: pointer;
+}
+
+.flashcard:hover .flashcard-inner {
+    transform: rotateY(180deg);
+}
+
+.flashcard-front, .flashcard-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.flashcard-front {
+    background: #e2eafc;
+}
+
+.flashcard-back {
+    background: #adb5bd;
+    transform: rotateY(180deg);
+}
+
+.hint {
+    font-size: 0.8rem;
+    color: #666;
+    margin-top: 1rem;
+}
+
+.difficulty-beginner { border-left: 4px solid #28a745; }
+.difficulty-intermediate { border-left: 4px solid #ffc107; }
+.difficulty-advanced { border-left: 4px solid #dc3545; }
+</style>
+{% endblock %}

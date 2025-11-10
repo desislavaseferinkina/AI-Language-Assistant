@@ -1,0 +1,282 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>🎯 Интелигентен преводач</h1>
+<p class="lead">Превеждайте текст между различни езици в реално време с помощта на AI технологии.</p>
+
+<div class="translator-container">
+    <div class="input-section">
+        <div class="form-group">
+            <label for="textToTranslate">📝 Текст за превод:</label>
+            <textarea
+                id="textToTranslate"
+                placeholder="Въведете текст на български език..."
+                rows="4"
+                oninput="updateCharCount()"
+            ></textarea>
+            <div class="char-count" style="text-align: right; font-size: 0.875rem; color: #666; margin-top: 0.5rem;">
+                <span id="charCount">0</span> знака
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="targetLanguage">🎯 Целев език:</label>
+            <select id="targetLanguage">
+                <option value="en">🇺🇸 Английски</option>
+                <option value="es">🇪🇸 Испански</option>
+                <option value="fr">🇫🇷 Френски</option>
+                <option value="de">🇩🇪 Немски</option>
+                <option value="it">🇮🇹 Италиански</option>
+                <option value="ru">🇷🇺 Руски</option>
+            </select>
+        </div>
+
+        <div class="action-buttons" style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <button onclick="translateText()" class="btn" id="translateBtn">
+                🔄 Преведи
+            </button>
+            <button onclick="clearText()" class="btn btn-secondary">
+                🗑️ Изчисти
+            </button>
+            <button onclick="speakText()" class="btn btn-success" id="speakBtn">
+                🔊 Гласово възпроизвеждане
+            </button>
+        </div>
+    </div>
+
+    <div class="output-section">
+        <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 1rem;">
+            <h3 style="margin: 0;">📊 Резултат:</h3>
+            <button onclick="copyTranslation()" class="btn" style="padding: 0.5rem 1rem; font-size: 0.875rem;">
+                📋 Копирай
+            </button>
+        </div>
+        <div id="translationResult" class="result-box">
+            <div class="placeholder-text" style="text-align: center; color: #999; padding: 2rem;">
+                👆 Въведете текст и ще видите превода тук
+            </div>
+        </div>
+
+        <div id="translationDetails" class="translation-details" style="margin-top: 1rem; display: none;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; font-size: 0.875rem;">
+                <div>
+                    <strong>📝 Оригинален текст:</strong>
+                    <span id="originalText"></span>
+                </div>
+                <div>
+                    <strong>🎯 Целев език:</strong>
+                    <span id="targetLangName"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="translation-examples" style="margin-top: 3rem;">
+    <h3>🚀 Бързи примери:</h3>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem;">
+        <button onclick="loadExample('Здравей, как си?')" class="btn" style="padding: 0.75rem; font-size: 0.9rem;">
+            👋 Здравей, как си?
+        </button>
+        <button onclick="loadExample('Благодаря за помощта!')" class="btn" style="padding: 0.75rem; font-size: 0.9rem;">
+            🙏 Благодаря за помощта!
+        </button>
+        <button onclick="loadExample('Колко е часът?')" class="btn" style="padding: 0.75rem; font-size: 0.9rem;">
+            ⏰ Колко е часът?
+        </button>
+        <button onclick="loadExample('Къде е най-близката аптека?')" class="btn" style="padding: 0.75rem; font-size: 0.9rem;">
+            🏥 Къде е аптеката?
+        </button>
+    </div>
+</div>
+
+<script>
+// Езици за показване
+const languages = {
+    'en': '🇺🇸 Английски',
+    'es': '🇪🇸 Испански',
+    'fr': '🇫🇷 Френски',
+    'de': '🇩🇪 Немски',
+    'it': '🇮🇹 Италиански',
+    'ru': '🇷🇺 Руски'
+};
+
+let currentTranslation = '';
+
+function updateCharCount() {
+    const textarea = document.getElementById('textToTranslate');
+    const charCount = document.getElementById('charCount');
+    charCount.textContent = textarea.value.length;
+}
+
+async function translateText() {
+    const text = document.getElementById('textToTranslate').value.trim();
+    const targetLang = document.getElementById('targetLanguage').value;
+    const translateBtn = document.getElementById('translateBtn');
+    const resultDiv = document.getElementById('translationResult');
+    const detailsDiv = document.getElementById('translationDetails');
+
+    if (!text) {
+        showNotification('Моля, въведете текст за превод', 'warning');
+        return;
+    }
+
+    // Показване на loading state
+    translateBtn.innerHTML = '<span class="loading"></span> Превеждане...';
+    translateBtn.disabled = true;
+    resultDiv.innerHTML = '<div style="text-align: center; padding: 2rem;"><span class="loading"></span><br>Превеждаме текста...</div>';
+
+    try {
+        const response = await fetch(`/api/v1/translate/${encodeURIComponent(text)}?target_lang=${targetLang}`);
+
+        if (!response.ok) {
+            throw new Error(`Грешка при заявката: ${response.status}`);
+        }
+
+        const data = await response.json();
+        currentTranslation = data.translated;
+
+        // Показване на резултата
+        resultDiv.innerHTML = `
+            <div style="font-size: 1.2rem; line-height: 1.6; margin-bottom: 1rem;">
+                ${data.translated}
+            </div>
+            <div style="border-top: 1px solid #e9ecef; padding-top: 1rem; font-size: 0.9rem; color: #666;">
+                <strong>🔄 Автоматично разпознаване на език</strong>
+            </div>
+        `;
+
+        // Показване на допълнителни детайли
+        detailsDiv.style.display = 'block';
+        document.getElementById('originalText').textContent = data.original;
+        document.getElementById('targetLangName').textContent = languages[data.target_lang] || data.target_lang;
+
+        showNotification('✅ Преводът е успешен!', 'success');
+
+    } catch (error) {
+        console.error('Грешка при превод:', error);
+        resultDiv.innerHTML = `
+            <div style="color: #dc3545; text-align: center; padding: 2rem;">
+                <strong>❌ Грешка при превод</strong>
+                <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem;">${error.message}</p>
+                <button onclick="retryTranslation()" class="btn" style="margin-top: 1rem; padding: 0.5rem 1rem;">
+                    🔄 Опитай отново
+                </button>
+            </div>
+        `;
+        showNotification('❌ Възникна грешка при превода', 'error');
+    } finally {
+        translateBtn.innerHTML = '🔄 Преведи';
+        translateBtn.disabled = false;
+    }
+}
+
+function retryTranslation() {
+    translateText();
+}
+
+function clearText() {
+    document.getElementById('textToTranslate').value = '';
+    document.getElementById('translationResult').innerHTML = `
+        <div class="placeholder-text" style="text-align: center; color: #999; padding: 2rem;">
+            👆 Въведете текст и ще видите превода тук
+        </div>
+    `;
+    document.getElementById('translationDetails').style.display = 'none';
+    document.getElementById('charCount').textContent = '0';
+    showNotification('✅ Текстът е изчистен', 'info');
+}
+
+function copyTranslation() {
+    if (!currentTranslation) {
+        showNotification('❌ Няма превод за копиране', 'warning');
+        return;
+    }
+
+    navigator.clipboard.writeText(currentTranslation).then(() => {
+        showNotification('✅ Преводът е копиран в клипборда!', 'success');
+    }).catch(err => {
+        console.error('Грешка при копиране:', err);
+        showNotification('❌ Грешка при копиране', 'error');
+    });
+}
+
+function loadExample(text) {
+    document.getElementById('textToTranslate').value = text;
+    updateCharCount();
+    showNotification(`✅ Зареден пример: "${text}"`, 'info');
+}
+
+function speakText() {
+    const text = document.getElementById('textToTranslate').value.trim();
+    const speakBtn = document.getElementById('speakBtn');
+
+    if (!text) {
+        showNotification('Моля, въведете текст за гласово възпроизвеждане', 'warning');
+        return;
+    }
+
+    if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'bg-BG'; // Български език
+        utterance.rate = 0.9;
+
+        speakBtn.innerHTML = '🔊 Възпроизвеждане...';
+        speakBtn.disabled = true;
+
+        utterance.onend = function() {
+            speakBtn.innerHTML = '🔊 Гласово възпроизвеждане';
+            speakBtn.disabled = false;
+        };
+
+        speechSynthesis.speak(utterance);
+        showNotification('🔊 Възпроизвеждане на текста...', 'info');
+    } else {
+        showNotification('❌ Вашият браузър не поддържа гласово възпроизвеждане', 'error');
+    }
+}
+
+// Enter key shortcut
+document.getElementById('textToTranslate').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+        translateText();
+    }
+});
+
+// Автоматично превеждане при промяна на езика (по избор)
+// document.getElementById('targetLanguage').addEventListener('change', function() {
+//     const text = document.getElementById('textToTranslate').value.trim();
+//     if (text) {
+//         translateText();
+//     }
+// });
+</script>
+
+<style>
+.translation-details {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 1rem;
+    border-radius: 8px;
+    border-left: 4px solid #667eea;
+}
+
+.placeholder-text {
+    opacity: 0.7;
+}
+
+.action-buttons .btn {
+    flex: 1;
+    min-width: 120px;
+}
+
+@media (max-width: 768px) {
+    .action-buttons {
+        flex-direction: column;
+    }
+
+    .action-buttons .btn {
+        width: 100%;
+    }
+}
+</style>
+{% endblock %}

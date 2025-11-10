@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Дума на деня</h1>
+<div class="word-of-day">
+    {% if word_data %}
+    <div class="word-card">
+        <h2>{{ word_data.word }}</h2>
+        <p><strong>Дефиниция:</strong> {{ word_data.definition }}</p>
+        <p><strong>Трудност:</strong>
+            <span class="difficulty-{{ word_data.difficulty }}">
+                {% if word_data.difficulty == "beginner" %}🟢 Начинаещ
+                {% elif word_data.difficulty == "intermediate" %}🟡 Напреднал
+                {% else %}🔴 Експерт{% endif %}
+            </span>
+        </p>
+        <p><strong>Синоними:</strong> {{ word_data.synonyms | join(', ') }}</p>
+        <p><strong>Пример:</strong> {{ word_data.examples[0] }}</p>
+    </div>
+    {% else %}
+    <p>Няма данни за думата на деня.</p>
+    {% endif %}
+
+    <div class="actions">
+        <button onclick="location.reload()">🎲 Нова дума</button>
+        <button onclick="getWordInfo()">ℹ️ Повече информация</button>
+    </div>
+
+    <div id="wordInfo" class="additional-info"></div>
+</div>
+
+<script>
+async function getWordInfo() {
+    const word = "{{ word_data.word }}";
+
+    try {
+        const response = await fetch(`/api/v1/word-info/${encodeURIComponent(word)}`);
+        const data = await response.json();
+
+        document.getElementById('wordInfo').innerHTML = `
+            <h3>Допълнителна информация за "${data.word}":</h3>
+            <p><strong>Дефиниция от API:</strong> ${data.info.definition}</p>
+            <p><strong>Синоними:</strong> ${data.info.synonyms.join(', ')}</p>
+            <p><strong>Трудност:</strong> ${data.info.difficulty}</p>
+        `;
+    } catch (error) {
+        console.error('Грешка при взимане на информация:', error);
+        document.getElementById('wordInfo').textContent = 'Възникна грешка при взимане на информация.';
+    }
+}
+</script>
+
+<style>
+.word-card {
+    background: #f8f9fa;
+    padding: 2rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    border-left: 4px solid #007bff;
+}
+
+.actions {
+    margin-bottom: 2rem;
+}
+
+.actions button {
+    margin-right: 1rem;
+}
+
+.additional-info {
+    background: #e9ecef;
+    padding: 1rem;
+    border-radius: 4px;
+    margin-top: 1rem;
+}
+</style>
+{% endblock %}

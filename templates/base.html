@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="bg">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title or "AI Language Assistant" }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="/static/css/main.css" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="/" data-tooltip="Начална страница">🏠 Начало</a>
+            <a href="/translator" data-tooltip="Превод на текст">🔤 Преводач</a>
+            <a href="/word-of-day" data-tooltip="Нова дума всеки ден">📖 Дума на деня</a>
+            <a href="/flashcards" data-tooltip="Интерактивни карти">🎴 Флаш карти</a>
+            <a href="/about" data-tooltip="Информация за проекта">ℹ️ За проекта</a>
+            <a href="/contact" data-tooltip="Свържете се с нас">📞 Контакт</a>
+        </nav>
+    </header>
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+    <footer>
+        <small>© 2025 AI Language Assistant | Създадено с ❤️ и FastAPI</small>
+    </footer>
+    <script src="/static/js/main.js"></script>
+</body>
+</html>
